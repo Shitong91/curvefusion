@@ -14,19 +14,22 @@ std::vector<Curves*> Curves::newpoints;
 std::vector<Curves*> Curves::Samplepoints;
 std::vector<Curves*> Curves::gpspoints;
 std::vector<Curves*> Curves::laserpoints;
-Curves::Curves(std::vector<double> *point ,int type, unsigned int identifier) :
-  m_point(point),m_type(type),identifiers(identifier)
+Curves::Curves(std::vector<MatrixXd> *pose ,int type, unsigned int identifier) :
+  m_pose(pose),m_type(type),identifiers(identifier)
 {
   
  // double point[6];
  // readTrajectory(m_path.c_str(), point,identifiers);
-  time_stamps = m_point[0][identifiers];
-  points1(0) = m_point[4][identifiers];
-  points1(1) = m_point[5][identifiers];
-  points1(2) = m_point[6][identifiers];    //hector laser x y z
-  points2(0) = m_point[1][identifiers];    //GPS x y z
-  points2(1) = m_point[2][identifiers];    //for kitti points1 refer to odometry
-  points2(2) = m_point[3][identifiers];    // points2 indicates ground truth
+  time_stamps = identifiers;
+  pose1 = m_pose[0][identifiers];
+  pose2 = m_pose[1][identifiers];
+  points1(0) = m_pose[0][identifiers](0,3);    //pose1 GPS
+  points1(1) = m_pose[0][identifiers](1,3);
+  points1(2) = m_pose[0][identifiers](2,3);
+  points2(0) = m_pose[1][identifiers](0,3);    //Pose2 Hector
+  points2(1) = m_pose[1][identifiers](1,3);   
+  points2(2) = m_pose[1][identifiers](2,3);
+  cout<<points2<<endl;  
 }
 
 Curves::Curves(Vector3d point3d ,int type, unsigned int identifier,string t) :
@@ -87,7 +90,7 @@ void Curves::readTrajectory(const char* dir_path, double* pose, unsigned int ide
 void Curves::Trans_Mat(Curves* CurrentPoint,Curves* NextPoint)
 {
   //computer transformation matrix from current point to next point.
-   
+#ifdef POINTTOPOSE  
    MatrixXd traj_point1(2,DIMENSIONS);
    MatrixXd traj_mean1(2,DIMENSIONS);
    MatrixXd H1(2,DIMENSIONS);
@@ -248,8 +251,25 @@ void Curves::Trans_Mat(Curves* CurrentPoint,Curves* NextPoint)
    transformation2(DIMENSIONS, k)=0;
    
    transformation2(DIMENSIONS, DIMENSIONS)=1.0;
+
+#else
+   transformation1=((CurrentPoint->pose1).inverse())*(NextPoint->pose1);
+   for(int i = 0; i < DIMENSIONS; i++)
+    for(int j = 0; j < DIMENSIONS; j++)
+     rot1(i,j)=transformation1(i,j);
+   for(int k = 0; k < DIMENSIONS; k++)
+     trans1(k)=transformation1(k,DIMENSIONS);
+    cout<<transformation1<<endl;
+   transformation2=((CurrentPoint->pose2).inverse())*(NextPoint->pose2); 
+   for(int i = 0; i < DIMENSIONS; i++)
+    for(int j = 0; j < DIMENSIONS; j++)
+     rot2(i,j)=transformation2(i,j);
+   for(int k = 0; k < DIMENSIONS; k++)
+     trans2(k)=transformation2(k,DIMENSIONS);
    
-   //return 0;
+#endif  
+
+//return 0;
 }
 
 

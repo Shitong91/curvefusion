@@ -137,27 +137,17 @@ int main(int argc, char **argv)
   string plot_point_dir;
   std::vector<double> point_curve1[4];
   std::vector<double> point_curve2[4];
-  std::vector<double> hector_matrix[8];
-  std::vector<double> point_corr[7];
+
+  std::vector<MatrixXd> point_corr[2];
+
+  std::vector<double> hector_matrix[8];  //read pose of curve2 with quaternion
+ // std::vector<double> point_corr[7];     //get the point correspondence of two curve based on timestamp or optimal sample
   parseArgs(argc, argv, dir, num_points,sample_points,type,steps,pose_index,beta,window_size);
-  ///////node.param<std::string>("/log/bagfile1",bagfile_ros,"ros.bag");
-  node.param<std::string>("/log/bagfile1",bagfile_ros1,"ros1.bag");
-  //node.param<std::string>("/log/bagfile2",bagfile_odroid,"odroid.bag");
-  node.param<std::string>("/log/bagfile2",bagfile_ros2,"ros2.bag");
-  node.param<std::string>("/log/rieglfile",rieglfile,"raw.rxp");
- 
-  bagfile_ros1=dir+bagfile_ros1;
-  bagfile_ros2=dir+bagfile_ros2;
-  rieglfile=dir+rieglfile;
-  ////rosbag::Bag bag1(bagfile_ros1);
- //// rosbag::Bag bag2(bagfile_ros2);
+
   string str1="/slam_out_pose";
   string str2="/fix";
-  // extract two curves from .bag file.
-  //extractTrajectory stamps=extractTrajectory(&bag);
 
-
-#ifdef GPS_HECTOR
+#ifdef GPS_HECTOR   //fusion
 #ifdef READBAG 
   
 #ifdef SEPERATE_ROSCORE   
@@ -169,7 +159,7 @@ int main(int argc, char **argv)
   trajectory->aligncurve(point_curve1,point_curve2,hector_matrix,dir);
 #else
    //extract2hector_gps *trajectory=new extract2hector_gps(&bag1);
-   readkitti(hector_matrix,point_corr,dir);
+   readkitti(hector_matrix,point_corr,dir); //read kitti data
 #endif
   //the coordinate system of gps and laser data are not in the same coordinate system. 
   //so,we use aligncurve function to align these two coordiante systems.
@@ -220,7 +210,7 @@ int main(int argc, char **argv)
   
   cout<<"read data from file"<<endl;
 
-  for(unsigned int i=0; i<= point_corr[0].size()-1; i++)    
+  for(unsigned int i=0; i<= point_corr[0].size()-2; i++)        //Because the ifstream lead to this last line is read twice, when load data, the last line just is removed 
   Curves::allpoints.push_back(new Curves(point_corr,type,i));
 
   cout<< "read data complete"<<endl;
@@ -237,7 +227,7 @@ int main(int argc, char **argv)
         
 #endif
     
-    curve_rep(Curves::allpoints,type);
+    curve_rep(Curves::allpoints,type); //caculate relation between two consecutive points
 
 #ifndef UNIFORM_CORRESPODENCE
    
@@ -271,11 +261,10 @@ int main(int argc, char **argv)
     Curves::Samplepoints.push_back(curves);
    } 
 #endif
-     //cout<<Curves::allpoints.size()-1<<endl;
+     cout<<Curves::allpoints.size()-1<<endl;
 
      curve_rep(Curves::Samplepoints,type);
      geodesic_path(Curves::Samplepoints,steps,dir,pose_index,hector_matrix,h_seq); 
-      
      cout<<"get fusion trajectory"<<endl;
 
      cout<<"start to save result"<<endl;

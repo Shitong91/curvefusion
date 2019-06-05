@@ -16,6 +16,7 @@ using namespace Eigen;
 using Eigen::MatrixXd;
 
 #define POINT3D
+//#define POINTTOPOSE 
 //#define PUBLISHTF
 //#define UNIFORM
 //#define CORRESPONDENCE
@@ -53,7 +54,7 @@ public:
   static std::vector<Curves*> laserpoints;
   //static std::vector<Curves*> geodesicPoint;
   //typedef std::shared_ptr<Curves> Ptr;
-  Curves(std::vector<double> *point ,int type,unsigned int identifier);
+  Curves(std::vector<MatrixXd> *pose ,int type,unsigned int identifier);
   Curves(Vector3d point3d ,int type, unsigned int identifier,string t);
  // Curves(std::vector<MatrixXd>&poses_result_final,Vector3d &t_i, int identifier);
   void readTrajectory(const char* dir_path, double* pose,unsigned int identifiers);
@@ -62,7 +63,7 @@ public:
   MatrixXd Opt_rot(VectorXd A,VectorXd B);
  
 public:
-    std::vector<double> *m_point;
+    std::vector<MatrixXd> *m_pose;
     int  m_type;
     string str;
     
@@ -75,6 +76,9 @@ public:
     Vector3d points2;   //!< 3D position of trajectory1 and trajectory2
     Vector3d Fus_points;
     double   time_stamps;
+    Matrix4d pose1;
+    Matrix4d pose2;
+    Matrix4d Final_pose;
 
     unsigned int  identifiers;
 #ifdef POINT3D 

@@ -27,7 +27,7 @@ extern std::vector<Vector3d> V_point2;
 extern unsigned int seq_interval[60000];
 
 void curvspace(unsigned int s_num,curvesVector &points);
-void readkitti(std::vector<double> *hector_matrix,std::vector<double> *point_corr,std::string dir);
+void readkitti(std::vector<double> *hector_matrix, std::vector<MatrixXd> *point_corr,std::string dir);
 void curve_rep(curvesVector &points,int type);
 void general_align(curvesVector &points,int type);
 double Aligndata(const vector<PtPair>& pairs,
@@ -71,9 +71,9 @@ vector<MatrixXd> loadPoses(string file_name);
 vector<VectorXd> loadPoses1(string file_name);
 void save_correspodence(std::vector<double> *point_s,string dir);
 
-void timestamp_correspondence(std::vector<double> *point_g,std::vector<double> *point_curve2,std::vector<double> *point_corr,unsigned int *h_seq,string dir);
-void closest_correspondence(std::vector<double> *point_g,std::vector<double> *point_curve2,std::vector<double> *point_corr,unsigned int *h_seq,string dir);
-void Optimal_correspondence(std::vector<double> *point_curve1,std::vector<double> *point_curve2,std::vector<double> *point_corr,unsigned int *h_seq,string dir,int type,double beta,int window_size);
+void timestamp_correspondence(std::vector<double> *point_g,std::vector<double> *point_curve2,std::vector<MatrixXd> *point_corr,unsigned int *h_seq,string dir);
+void closest_correspondence(std::vector<double> *point_g,std::vector<double> *point_curve2,std::vector<MatrixXd> *point_corr,unsigned int *h_seq,string dir);
+void Optimal_correspondence(std::vector<double> *point_curve1,std::vector<double> *point_curve2,std::vector<MatrixXd> *point_corr,unsigned int *h_seq,string dir,int type,double beta,int window_size);
 
 void dp_optimal_point_sampling_Single(std::vector<double> *point_curve1,std::vector<double> *point_curve2,unsigned int *opt_index,double alpha,double beta,int window_size,int type);
 void dp_optimal_point_sampling_Both(std::vector<double> *point_g,std::vector<double> *hector_matrix,int *opt_index,double alpha,double beta,int window_size);
